@@ -11,7 +11,7 @@
 </head>
 <body>
   <main class="scene-shell">
-    <section class="scene" aria-label="Rooftop fall interactive scene">
+    <section class="scene" id="scene" aria-label="Rooftop fall interactive scene">
       <div class="scene-photo scene-photo-horizon"></div>
       <div class="scene-photo scene-photo-city"></div>
       <div class="sun-haze"></div>
@@ -33,6 +33,11 @@
         <p>Rooftop Sunset by Sam Mellors, Fiery sunset clouds over city silhouette by Abdellatif Attahiri, and flashback photos from Wikimedia Commons creators noted in README.</p>
       </details>
 
+      <div class="flashback-overlay" id="flashbackOverlay" aria-hidden="true">
+        <div class="flashback-wash flashback-wash-a"></div>
+        <div class="flashback-wash flashback-wash-b"></div>
+      </div>
+
       <div class="world" id="world">
         <div class="atmosphere atmosphere-far" id="skylineFar"></div>
         <div class="atmosphere atmosphere-near" id="skylineNear"></div>
@@ -45,12 +50,6 @@
         <div class="ground" id="ground"></div>
         <div class="corpse-layer" id="corpseLayer" aria-hidden="true"></div>
         <div class="player" id="player" aria-label="character"></div>
-      </div>
-
-      <div class="flashback-overlay" id="flashbackOverlay" aria-hidden="true">
-        <div class="flashback-wash flashback-wash-a"></div>
-        <div class="flashback-wash flashback-wash-b"></div>
-        <div class="flashback-caption" id="flashbackCaption">어떤 여름의 저녁</div>
       </div>
 
       <div class="whiteout" id="whiteout" aria-hidden="true"></div>

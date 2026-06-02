@@ -55,6 +55,18 @@ button {
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
+.scene.flashback-mode .hud,
+.scene.flashback-mode .counter-panel,
+.scene.flashback-mode .credits,
+.scene.flashback-mode .scene-photo,
+.scene.flashback-mode .sun-haze,
+.scene.flashback-mode .grain,
+.scene.flashback-mode .atmosphere,
+.scene.flashback-mode .ground,
+.scene.flashback-mode .corpse-layer {
+  opacity: 0;
+}
+
 .scene-photo,
 .sun-haze,
 .grain,
@@ -294,17 +306,41 @@ button {
 
 .rooftop {
   position: absolute;
-  top: 104px;
-  left: -9%;
-  width: 118%;
-  height: 22px;
-  border-radius: 16px 16px 10px 10px;
+  top: 96px;
+  left: -12%;
+  width: 124%;
+  height: 30px;
+  border-radius: 18px 18px 10px 10px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%),
-    linear-gradient(180deg, rgba(54, 44, 57, 0.96), rgba(28, 24, 33, 0.98));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 44%),
+    linear-gradient(180deg, rgba(68, 56, 73, 0.98), rgba(28, 24, 33, 1));
   box-shadow:
-    0 2px 0 rgba(255, 238, 216, 0.14),
-    0 18px 38px rgba(0, 0, 0, 0.32);
+    0 3px 0 rgba(255, 238, 216, 0.18),
+    0 20px 38px rgba(0, 0, 0, 0.34);
+}
+
+.rooftop::before {
+  content: "";
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: -14px;
+  height: 14px;
+  border-radius: 10px 10px 0 0;
+  background:
+    linear-gradient(180deg, rgba(79, 67, 86, 0.96), rgba(47, 40, 53, 0.98));
+  box-shadow: 0 2px 0 rgba(255, 238, 216, 0.12);
+}
+
+.rooftop::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 232, 202, 0.18);
 }
 
 .ground {
@@ -357,9 +393,7 @@ button {
   z-index: 4;
   opacity: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 44%),
-    linear-gradient(180deg, rgba(15, 10, 18, 0.08), rgba(15, 10, 18, 0.38));
+  background: transparent;
   transition: opacity 200ms linear;
 }
 
@@ -372,29 +406,27 @@ button {
   inset: -6%;
   background-size: cover;
   background-position: center;
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
   opacity: 0;
   transform: scale(1.08);
   transition:
     opacity 260ms linear,
     transform 720ms linear,
     filter 720ms linear;
-  filter: blur(10px) saturate(1.02);
+  filter: blur(0) saturate(1);
 }
 
 .flashback-wash.visible {
-  opacity: 0.98;
+  opacity: 1;
   transform: scale(1);
-  filter: blur(0.6px) saturate(1.08);
+  filter: blur(0) saturate(1);
 }
 
 .flashback-wash::after {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(14, 10, 18, 0.08), rgba(14, 10, 18, 0.24)),
-    radial-gradient(circle at center, rgba(255, 236, 214, 0.1), transparent 46%);
+  background: transparent;
 }
 
 .flashback-wash-a {

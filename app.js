@@ -1,10 +1,10 @@
+const scene = document.getElementById("scene");
 const world = document.getElementById("world");
 const player = document.getElementById("player");
 const corpseLayer = document.getElementById("corpseLayer");
 const bodyCountEl = document.getElementById("bodyCount");
 const prompt = document.getElementById("prompt");
 const flashbackOverlay = document.getElementById("flashbackOverlay");
-const flashbackCaption = document.getElementById("flashbackCaption");
 const whiteout = document.getElementById("whiteout");
 const bgm = document.getElementById("bgm");
 const startOverlay = document.getElementById("startOverlay");
@@ -23,15 +23,6 @@ const flashbackSources = [
   "assets/flashbacks/photo-4.jpg",
 ];
 
-const fallbackCaptions = [
-  "어떤 여름의 저녁",
-  "멀리서 웃음소리가 들리던 식탁",
-  "하와이의 빛이 눈꺼풀 안쪽에 남아 있다",
-  "손을 놓치지 않던 밤",
-  "이름을 부르면 돌아보던 순간",
-  "그때는 당연했던 체온",
-];
-
 const state = {
   mode: "idle",
   keys: {
@@ -42,6 +33,7 @@ const state = {
   playerX: 150,
   playerWorldY: 0,
   fallVelocity: 0,
+  fallElapsed: 0,
   bodyCount: 0,
   bodies: [],
   roofWidth: 320,
@@ -57,7 +49,7 @@ const state = {
   availableFlashbacks: [],
   flashbackIndex: 0,
   flashbackTimer: 0,
-  flashbackNextChange: 0.82,
+  flashbackNextChange: 1.15,
   flashbackStarted: false,
   promptShown: false,
 };
@@ -69,28 +61,26 @@ const motion = {
   frameId: 0,
 };
 
-function preloadFlashbacks() {
-  const checks = flashbackSources.map((src) => {
-    return new Promise((resolve) => {
-      const image = new Image();
-      image.onload = () => resolve(src);
-      image.onerror = () => resolve(null);
-      image.src = src;
-    });
-  });
-
-  Promise.all(checks).then((results) => {
-    state.availableFlashbacks = results.filter(Boolean);
-    updateFlashbackBackground(0);
-  });
-}
-
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
 function lerp(start, end, amount) {
   return start + (end - start) * amount;
+}
+
+function preloadFlashbacks() {
+  const checks = flashbackSources.map((src) => new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve(src);
+    image.onerror = () => resolve(null);
+    image.src = src;
+  }));
+
+  Promise.all(checks).then((results) => {
+    state.availableFlashbacks = results.filter(Boolean);
+    paintFlashbackPair();
+  });
 }
 
 function getRoofLeftX() {
@@ -126,10 +116,6 @@ function setPromptVisible(visible) {
   });
 }
 
-function randomCaption() {
-  return fallbackCaptions[Math.floor(Math.random() * fallbackCaptions.length)];
-}
-
 function updateWorldMetrics() {
   state.sceneHeight = world.clientHeight;
   state.sceneWidth = world.clientWidth;
@@ -160,31 +146,26 @@ function resetFlashbacks() {
     wash.classList.remove("visible");
     wash.style.opacity = "";
   });
+  scene.classList.remove("flashback-mode");
   state.flashbackStarted = false;
   state.flashbackTimer = 0;
-  state.flashbackNextChange = 0.82;
+  state.flashbackNextChange = 1.15;
   state.promptShown = false;
 }
 
-function updateFlashbackBackground(progress) {
+function paintFlashbackPair() {
   const sources = state.availableFlashbacks.length > 0 ? state.availableFlashbacks : flashbackSources;
   const lead = sources[state.flashbackIndex % sources.length];
   const trail = sources[(state.flashbackIndex + 1) % sources.length];
-  const posLeadX = 28 + ((state.flashbackIndex * 13) % 42);
-  const posTrailX = 52 + ((state.flashbackIndex * 7) % 26);
-  const posLeadY = 22 + ((state.flashbackIndex * 9) % 34);
-  const posTrailY = 30 + ((state.flashbackIndex * 5) % 28);
-  const scale = lerp(1.06, 1, clamp(progress, 0, 1));
+  const leadX = 26 + ((state.flashbackIndex * 11) % 44);
+  const leadY = 24 + ((state.flashbackIndex * 7) % 28);
+  const trailX = 34 + ((state.flashbackIndex * 5) % 34);
+  const trailY = 20 + ((state.flashbackIndex * 9) % 32);
 
-  flashbackWashes[0].style.backgroundImage = `linear-gradient(180deg, rgba(255, 239, 219, 0.14), rgba(255, 171, 121, 0.04)), url("${lead}")`;
-  flashbackWashes[0].style.backgroundPosition = `${posLeadX}% ${posLeadY}%`;
-  flashbackWashes[0].style.transform = `scale(${scale})`;
-
-  flashbackWashes[1].style.backgroundImage = `linear-gradient(180deg, rgba(255, 239, 219, 0.12), rgba(255, 171, 121, 0.02)), url("${trail}")`;
-  flashbackWashes[1].style.backgroundPosition = `${posTrailX}% ${posTrailY}%`;
-  flashbackWashes[1].style.transform = `scale(${scale * 1.02})`;
-
-  flashbackCaption.textContent = randomCaption();
+  flashbackWashes[0].style.backgroundImage = `url("${lead}")`;
+  flashbackWashes[0].style.backgroundPosition = `${leadX}% ${leadY}%`;
+  flashbackWashes[1].style.backgroundImage = `url("${trail}")`;
+  flashbackWashes[1].style.backgroundPosition = `${trailX}% ${trailY}%`;
 }
 
 function updateFlashbacks(deltaSeconds, progress) {
@@ -196,24 +177,25 @@ function updateFlashbacks(deltaSeconds, progress) {
 
   if (!state.flashbackStarted) {
     state.flashbackStarted = true;
+    scene.classList.add("flashback-mode");
     flashbackOverlay.classList.add("active");
-    updateFlashbackBackground(progress);
+    paintFlashbackPair();
     flashbackWashes[0].classList.add("visible");
   }
 
-  flashbackOverlay.style.opacity = String(lerp(0.34, 1, slowPhase));
+  flashbackOverlay.style.opacity = String(lerp(0.6, 1, slowPhase));
   state.flashbackTimer += deltaSeconds;
 
   if (state.flashbackTimer >= state.flashbackNextChange) {
     state.flashbackTimer = 0;
     state.flashbackIndex += 1;
-    updateFlashbackBackground(progress);
+    paintFlashbackPair();
     flashbackWashes.forEach((wash, index) => {
       const active = index === state.flashbackIndex % flashbackWashes.length;
       wash.classList.toggle("visible", active);
-      wash.style.opacity = active ? String(lerp(0.72, 0.96, slowPhase)) : "0";
+      wash.style.opacity = active ? "1" : "0";
     });
-    state.flashbackNextChange = lerp(0.9, 1.95, slowPhase) + Math.random() * 0.18;
+    state.flashbackNextChange = lerp(1.3, 2.7, slowPhase) + Math.random() * 0.2;
   }
 }
 
@@ -236,7 +218,10 @@ function renderWorld() {
   ground.style.bottom = `${-state.cameraY - 110}px`;
   skylineFar.style.bottom = `${28 - state.cameraY * 0.18}px`;
   skylineNear.style.bottom = `${-14 - state.cameraY * 0.36}px`;
-  const flashbackBlend = state.flashbackStarted ? clamp(Number.parseFloat(flashbackOverlay.style.opacity || "0"), 0, 1) : 0;
+
+  const flashbackBlend = state.flashbackStarted
+    ? clamp(Number.parseFloat(flashbackOverlay.style.opacity || "0"), 0, 1)
+    : 0;
   skylineFar.style.opacity = `${0.36 * (1 - flashbackBlend)}`;
   skylineNear.style.opacity = `${0.9 * (1 - flashbackBlend)}`;
 
@@ -244,9 +229,10 @@ function renderWorld() {
   const playerScreenY = state.playerWorldY - state.cameraY;
   player.style.left = `${playerScreenX}px`;
   player.style.bottom = `${playerScreenY}px`;
+
   const progress = getProgress();
   const fallTilt = state.mode === "falling" || state.mode === "confirming" || state.mode === "chosen-yes"
-    ? lerp(10, 78, clamp(progress, 0, 1))
+    ? lerp(-10, -78, progress)
     : 0;
   player.style.setProperty("--player-tilt", `${fallTilt}deg`);
 
@@ -258,6 +244,7 @@ function resetPlayer() {
   state.playerX = Math.min(170, state.roofWidth * 0.55);
   state.playerWorldY = state.roofWorldY;
   state.fallVelocity = 0;
+  state.fallElapsed = 0;
   state.cameraY = state.baseCameraY;
   player.classList.remove("falling");
   player.classList.remove("walking");
@@ -272,6 +259,7 @@ function beginFall() {
 
   state.mode = "falling";
   state.fallVelocity = 8;
+  state.fallElapsed = 0;
   player.classList.add("falling");
   player.classList.remove("walking");
   resetFlashbacks();
@@ -284,6 +272,7 @@ function showPrompt() {
 
   state.mode = "confirming";
   state.promptShown = true;
+  scene.classList.remove("flashback-mode");
   setPromptVisible(true);
   renderWorld();
   promptButtons[0].focus();
@@ -359,20 +348,25 @@ function updateWalking(deltaSeconds) {
 }
 
 function updateFalling(deltaSeconds) {
+  state.fallElapsed += deltaSeconds;
   const progress = getProgress();
   const slowPhase = clamp((progress - 0.08) / 0.82, 0, 1);
   const isPromptFall = state.mode === "confirming";
   const isChosenYes = state.mode === "chosen-yes";
+  const introBoost = state.fallElapsed < 0.5 ? 1 - state.fallElapsed / 0.5 : 0;
+
   const timeScale = isPromptFall
     ? lerp(0.16, 0.07, slowPhase)
     : isChosenYes
       ? lerp(0.24, 0.12, slowPhase)
-      : lerp(0.36, 0.14, slowPhase);
+      : lerp(0.36, 0.14, slowPhase) + introBoost * 0.42;
+
   const gravity = isPromptFall
     ? lerp(motion.baseGravity * 0.16, motion.baseGravity * 0.06, slowPhase)
     : isChosenYes
       ? lerp(motion.baseGravity * 0.24, motion.baseGravity * 0.1, slowPhase)
-      : lerp(motion.baseGravity * 0.4, motion.baseGravity * 0.14, slowPhase);
+      : lerp(motion.baseGravity * 0.4, motion.baseGravity * 0.14, slowPhase) + introBoost * motion.baseGravity * 0.42;
+
   const effectiveDelta = deltaSeconds * timeScale;
 
   state.fallVelocity += gravity * effectiveDelta;
@@ -394,6 +388,7 @@ function updateFalling(deltaSeconds) {
     player.classList.remove("falling");
 
     if (state.mode === "chosen-yes") {
+      scene.classList.remove("flashback-mode");
       addCorpse();
       state.mode = "corpse-landed";
       renderWorld();
@@ -405,7 +400,6 @@ function updateFalling(deltaSeconds) {
 
     if (state.mode === "falling") {
       showPrompt();
-      return;
     }
   }
 }
