@@ -54,6 +54,7 @@ const state = {
   promptShown: false,
   activeWashIndex: 0,
   washTimeout: 0,
+  impactX: 0,
 };
 
 const motion = {
@@ -241,7 +242,11 @@ function renderWorld() {
   player.style.bottom = `${playerScreenY}px`;
 
   const progress = getProgress();
-  const fallTilt = state.mode === "falling" || state.mode === "confirming" || state.mode === "chosen-yes"
+  const fallTilt = state.mode === "falling"
+    || state.mode === "confirming"
+    || state.mode === "chosen-yes"
+    || state.mode === "corpse-landed"
+    || state.mode === "fade-reset"
     ? lerp(-10, -78, progress)
     : 0;
   player.style.setProperty("--player-tilt", `${fallTilt}deg`);
@@ -255,6 +260,7 @@ function resetPlayer() {
   state.playerWorldY = state.roofWorldY;
   state.fallVelocity = 0;
   state.fallElapsed = 0;
+  state.impactX = getRoofLeftX() + state.playerX;
   state.cameraY = state.baseCameraY;
   player.classList.remove("falling");
   player.classList.remove("walking");
@@ -290,9 +296,8 @@ function showPrompt() {
 
 function addCorpse() {
   const row = Math.floor(state.bodyCount / 6);
-  const col = state.bodyCount % 6;
   const body = {
-    x: state.towerLeft - 12 + col * 32 + Math.random() * 18,
+    x: clamp(state.impactX - 56 + (Math.random() * 10 - 5), 12, state.sceneWidth - 124),
     y: 16 + row * 11,
     angle: -10 + Math.random() * 24,
     scale: 0.88 + Math.random() * 0.16,
@@ -395,16 +400,18 @@ function updateFalling(deltaSeconds) {
   if (state.playerWorldY <= state.groundWorldY) {
     state.playerWorldY = state.groundWorldY;
     state.cameraY = 0;
+    state.impactX = getRoofLeftX() + state.playerX;
     player.classList.remove("falling");
 
-    if (state.mode === "chosen-yes") {
+    if (state.mode === "chosen-yes" || state.mode === "confirming") {
       scene.classList.remove("flashback-mode");
+      setPromptVisible(false);
       addCorpse();
       state.mode = "corpse-landed";
       renderWorld();
       window.setTimeout(() => {
         resetPlayer();
-      }, 420);
+      }, 3000);
       return;
     }
 
