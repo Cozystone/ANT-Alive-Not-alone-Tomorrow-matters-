@@ -64,6 +64,12 @@ const motion = {
   frameId: 0,
 };
 
+const corpseMetrics = {
+  width: 112,
+  height: 44,
+  groundY: 16,
+};
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -294,13 +300,41 @@ function showPrompt() {
   promptButtons[0].focus();
 }
 
+function getCorpseRestY(x, scale) {
+  const halfWidth = corpseMetrics.width * scale * 0.5;
+  let restY = corpseMetrics.groundY;
+
+  state.bodies.forEach((body) => {
+    const bodyHalfWidth = corpseMetrics.width * body.scale * 0.5;
+    const supportRadius = halfWidth + bodyHalfWidth - 10;
+    const distance = Math.abs(x - body.x);
+
+    if (distance >= supportRadius) {
+      return;
+    }
+
+    const overlap = 1 - distance / supportRadius;
+    const bodyHeight = corpseMetrics.height * body.scale;
+    const supportedY = body.y + bodyHeight * (0.2 + overlap * 0.52);
+    restY = Math.max(restY, supportedY);
+  });
+
+  return restY;
+}
+
 function addCorpse() {
-  const row = Math.floor(state.bodyCount / 6);
+  const spread = 18 + Math.min(state.bodyCount * 1.8, 70);
+  const scale = 0.88 + Math.random() * 0.16;
+  const x = clamp(
+    state.impactX + (Math.random() * spread * 2 - spread),
+    12,
+    state.sceneWidth - 124,
+  );
   const body = {
-    x: clamp(state.impactX - 56 + (Math.random() * 10 - 5), 12, state.sceneWidth - 124),
-    y: 16 + row * 11,
+    x,
+    y: getCorpseRestY(x, scale),
     angle: -10 + Math.random() * 24,
-    scale: 0.88 + Math.random() * 0.16,
+    scale,
   };
 
   state.bodies.push(body);
