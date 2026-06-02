@@ -244,6 +244,11 @@ function renderWorld() {
   const playerScreenY = state.playerWorldY - state.cameraY;
   player.style.left = `${playerScreenX}px`;
   player.style.bottom = `${playerScreenY}px`;
+  const progress = getProgress();
+  const fallTilt = state.mode === "falling" || state.mode === "confirming" || state.mode === "chosen-yes"
+    ? lerp(10, 78, clamp(progress, 0, 1))
+    : 0;
+  player.style.setProperty("--player-tilt", `${fallTilt}deg`);
 
   renderBodies();
 }
