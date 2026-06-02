@@ -64,7 +64,7 @@ const state = {
 
 const motion = {
   walkSpeed: 235,
-  baseGravity: 620,
+  baseGravity: 500,
   lastTime: 0,
   frameId: 0,
 };
@@ -135,7 +135,7 @@ function updateWorldMetrics() {
   state.sceneWidth = world.clientWidth;
   state.towerWidth = Math.min(state.sceneWidth * 0.18, 245);
   state.roofWidth = Math.min(state.sceneWidth * 0.24, 320);
-  state.towerLeft = state.sceneWidth * 0.275;
+  state.towerLeft = state.sceneWidth * 0.365;
   state.roofWorldY = Math.max(state.sceneHeight * 2.55, 2050);
   state.groundWorldY = 48;
   state.towerHeight = state.roofWorldY + 250;
@@ -266,7 +266,7 @@ function beginFall() {
   }
 
   state.mode = "falling";
-  state.fallVelocity = 14;
+  state.fallVelocity = 8;
   player.classList.add("falling");
   player.classList.remove("walking");
   resetFlashbacks();
@@ -359,20 +359,20 @@ function updateFalling(deltaSeconds) {
   const isPromptFall = state.mode === "confirming";
   const isChosenYes = state.mode === "chosen-yes";
   const timeScale = isPromptFall
-    ? lerp(0.42, 0.26, slowPhase)
+    ? lerp(0.34, 0.2, slowPhase)
     : isChosenYes
-      ? lerp(0.58, 0.38, slowPhase)
-      : lerp(0.82, 0.54, slowPhase);
+      ? lerp(0.46, 0.3, slowPhase)
+      : lerp(0.68, 0.42, slowPhase);
   const gravity = isPromptFall
-    ? lerp(motion.baseGravity * 0.42, motion.baseGravity * 0.24, slowPhase)
+    ? lerp(motion.baseGravity * 0.36, motion.baseGravity * 0.18, slowPhase)
     : isChosenYes
-      ? lerp(motion.baseGravity * 0.65, motion.baseGravity * 0.4, slowPhase)
-      : lerp(motion.baseGravity, motion.baseGravity * 0.62, slowPhase);
+      ? lerp(motion.baseGravity * 0.52, motion.baseGravity * 0.3, slowPhase)
+      : lerp(motion.baseGravity * 0.88, motion.baseGravity * 0.5, slowPhase);
   const effectiveDelta = deltaSeconds * timeScale;
 
   state.fallVelocity += gravity * effectiveDelta;
   state.playerWorldY -= state.fallVelocity * effectiveDelta;
-  state.playerX -= lerp(11, 4, slowPhase) * deltaSeconds;
+  state.playerX -= lerp(8, 3, slowPhase) * deltaSeconds;
 
   const cameraTarget = Math.max(0, state.playerWorldY - state.sceneHeight * lerp(0.57, 0.46, slowPhase));
   state.cameraY = lerp(state.cameraY, cameraTarget, isPromptFall ? 0.045 : 0.065 + slowPhase * 0.04);
