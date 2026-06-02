@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ANT: Alive, Not Alone, Tomorrow matters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;700&family=IBM+Plex+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="scene-shell">
+    <section class="scene" aria-label="Rooftop fall interactive scene">
+      <div class="sky-glow sky-glow-a"></div>
+      <div class="sky-glow sky-glow-b"></div>
+      <div class="grain"></div>
+
+      <header class="hud">
+        <p class="hud-kicker">ANT</p>
+        <h1>Alive, Not Alone, Tomorrow matters</h1>
+        <p class="hud-copy">방향키로 움직이세요. 왼쪽 끝은 비어 있습니다.</p>
+      </header>
+
+      <div class="counter-panel" aria-live="polite">
+        <span class="counter-label">Bodies Below</span>
+        <strong id="bodyCount">0</strong>
+      </div>
+
+      <div class="world" id="world">
+        <div class="cityline cityline-back"></div>
+        <div class="cityline cityline-mid"></div>
+        <div class="ground" id="ground"></div>
+        <div class="tower">
+          <div class="tower-light tower-light-a"></div>
+          <div class="tower-light tower-light-b"></div>
+        </div>
+        <div class="rooftop" id="rooftop"></div>
+        <div class="corpse-layer" id="corpseLayer" aria-hidden="true"></div>
+        <div class="player" id="player" aria-label="character"></div>
+      </div>
+
+      <div class="flashback-overlay" id="flashbackOverlay" aria-hidden="true">
+        <div class="flashback-frame flashback-frame-a"></div>
+        <div class="flashback-frame flashback-frame-b"></div>
+        <div class="flashback-frame flashback-frame-c"></div>
+        <div class="flashback-caption" id="flashbackCaption">어떤 여름의 저녁</div>
+      </div>
+
+      <div class="whiteout" id="whiteout" aria-hidden="true"></div>
+
+      <section class="prompt hidden" id="prompt" aria-modal="true" role="dialog" aria-labelledby="promptTitle">
+        <p class="prompt-kicker">still here</p>
+        <h2 id="promptTitle">정말 원하십니까?</h2>
+        <p class="prompt-copy">멀어지는 풍경과 남겨질 흔적을, 지금 그대로 받아들이시겠습니까.</p>
+        <div class="prompt-actions">
+          <button type="button" data-choice="no">NO</button>
+          <button type="button" data-choice="yes" class="danger">YES</button>
+        </div>
+      </section>
+
+      <div class="start-overlay" id="startOverlay">
+        <p>아무 방향키나 눌러 음악을 시작하세요.</p>
+      </div>
+    </section>
+  </main>
+
+  <audio id="bgm" loop preload="auto">
+    <source src="BGM/mitski-my-love-mine-all-mine-official-lyric-video-128-ytshorts.savetube.me.mp3" type="audio/mpeg">
+  </audio>
+
+  <script src="app.js"></script>
+</body>
+</html>

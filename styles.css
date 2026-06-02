@@ -1,0 +1,549 @@
+:root {
+  --sky-top: #251737;
+  --sky-mid: #9e4361;
+  --sky-bottom: #ffb06b;
+  --sun-haze: rgba(255, 214, 160, 0.36);
+  --city-back: rgba(37, 23, 55, 0.36);
+  --city-mid: rgba(23, 16, 33, 0.72);
+  --tower: #1f1725;
+  --tower-edge: rgba(255, 255, 255, 0.08);
+  --rooftop: #2f2732;
+  --rooftop-line: rgba(255, 223, 174, 0.2);
+  --text-main: #fff4e7;
+  --text-soft: rgba(255, 244, 231, 0.72);
+  --panel: rgba(16, 14, 24, 0.34);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --danger: #f8b6a3;
+  --white: #fffefc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(255, 231, 197, 0.28), transparent 38%),
+    linear-gradient(180deg, #1f1529 0%, #52324d 35%, #c16553 72%, #f0bc7f 100%);
+  color: var(--text-main);
+  font-family: "IBM Plex Sans KR", sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+}
+
+.scene-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.scene {
+  position: relative;
+  width: min(100%, 1400px);
+  height: min(92vh, 900px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 245, 234, 0.14);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 230, 186, 0.08), transparent 32%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 46%, var(--sky-bottom) 100%);
+  box-shadow:
+    0 30px 80px rgba(8, 6, 12, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.sky-glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.sky-glow-a {
+  width: 34vw;
+  height: 34vw;
+  right: -6vw;
+  top: -4vw;
+  background: rgba(255, 210, 168, 0.34);
+}
+
+.sky-glow-b {
+  width: 30vw;
+  height: 18vw;
+  left: -2vw;
+  bottom: 18vh;
+  background: rgba(255, 126, 110, 0.24);
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.65) 0 0.6px, transparent 0.8px),
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.48) 0 0.7px, transparent 0.9px),
+    radial-gradient(circle at 55% 70%, rgba(25, 15, 40, 0.6) 0 0.7px, transparent 0.9px);
+  background-size: 18px 18px, 23px 23px, 27px 27px;
+}
+
+.hud,
+.counter-panel,
+.prompt,
+.start-overlay {
+  position: absolute;
+  z-index: 8;
+}
+
+.hud {
+  top: 38px;
+  left: 40px;
+  max-width: min(480px, calc(100% - 80px));
+}
+
+.hud-kicker,
+.prompt-kicker,
+.counter-label {
+  margin: 0 0 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+}
+
+.hud h1 {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  font-weight: 600;
+  line-height: 0.94;
+}
+
+.hud-copy {
+  margin: 16px 0 0;
+  max-width: 28ch;
+  color: var(--text-soft);
+  font-size: clamp(0.95rem, 1.5vw, 1.08rem);
+}
+
+.counter-panel {
+  top: 38px;
+  right: 40px;
+  min-width: 168px;
+  padding: 18px 22px;
+  text-align: right;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(14px);
+}
+
+.counter-panel strong {
+  display: block;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 0.9;
+}
+
+.world {
+  position: absolute;
+  inset: 0;
+}
+
+.cityline,
+.ground,
+.tower,
+.rooftop,
+.corpse-layer,
+.player {
+  position: absolute;
+}
+
+.cityline {
+  left: -5%;
+  width: 110%;
+  background-repeat: repeat-x;
+}
+
+.cityline-back {
+  bottom: 22%;
+  height: 18%;
+  opacity: 0.62;
+  background-image:
+    linear-gradient(90deg, transparent 0 2%, var(--city-back) 2% 5%, transparent 5% 8%, var(--city-back) 8% 11%, transparent 11% 14%, var(--city-back) 14% 18%, transparent 18% 21%, var(--city-back) 21% 24%, transparent 24% 28%, var(--city-back) 28% 33%, transparent 33% 36%, var(--city-back) 36% 40%, transparent 40% 44%, var(--city-back) 44% 49%, transparent 49% 53%, var(--city-back) 53% 57%, transparent 57% 61%, var(--city-back) 61% 67%, transparent 67% 70%, var(--city-back) 70% 75%, transparent 75% 78%, var(--city-back) 78% 83%, transparent 83% 86%, var(--city-back) 86% 91%, transparent 91% 100%);
+  clip-path: polygon(0 100%, 0 45%, 4% 45%, 4% 26%, 8% 26%, 8% 54%, 12% 54%, 12% 18%, 17% 18%, 17% 62%, 22% 62%, 22% 31%, 27% 31%, 27% 50%, 31% 50%, 31% 21%, 36% 21%, 36% 60%, 40% 60%, 40% 33%, 46% 33%, 46% 56%, 51% 56%, 51% 14%, 57% 14%, 57% 58%, 61% 58%, 61% 24%, 68% 24%, 68% 66%, 74% 66%, 74% 36%, 78% 36%, 78% 55%, 84% 55%, 84% 20%, 90% 20%, 90% 59%, 100% 59%, 100% 100%);
+}
+
+.cityline-mid {
+  bottom: 12%;
+  height: 22%;
+  background: rgba(19, 14, 28, 0.84);
+  clip-path: polygon(0 100%, 0 54%, 6% 54%, 6% 12%, 12% 12%, 12% 64%, 18% 64%, 18% 24%, 24% 24%, 24% 72%, 31% 72%, 31% 18%, 39% 18%, 39% 61%, 47% 61%, 47% 6%, 54% 6%, 54% 68%, 61% 68%, 61% 28%, 69% 28%, 69% 74%, 76% 74%, 76% 12%, 82% 12%, 82% 58%, 88% 58%, 88% 21%, 94% 21%, 94% 63%, 100% 63%, 100% 100%);
+}
+
+.ground {
+  inset: auto 0 0;
+  height: 12%;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 16%),
+    linear-gradient(180deg, #241c29 0%, #120e18 100%);
+}
+
+.tower {
+  left: 20%;
+  bottom: 12%;
+  width: min(18vw, 220px);
+  height: 55%;
+  border-radius: 22px 22px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 12%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 20% 80%, rgba(0, 0, 0, 0.12)),
+    var(--tower);
+  box-shadow: inset -1px 0 0 var(--tower-edge);
+}
+
+.tower::before {
+  content: "";
+  position: absolute;
+  inset: 8% 16% 10%;
+  background:
+    linear-gradient(90deg, rgba(255, 196, 126, 0.06) 0 10%, transparent 10% 20%, rgba(255, 196, 126, 0.04) 20% 30%, transparent 30% 40%, rgba(255, 196, 126, 0.08) 40% 50%, transparent 50% 60%, rgba(255, 196, 126, 0.04) 60% 70%, transparent 70% 80%, rgba(255, 196, 126, 0.06) 80% 90%, transparent 90% 100%),
+    linear-gradient(180deg, rgba(255, 196, 126, 0.05) 0 5%, transparent 5% 12%, rgba(255, 196, 126, 0.04) 12% 18%, transparent 18% 25%, rgba(255, 196, 126, 0.08) 25% 31%, transparent 31% 39%, rgba(255, 196, 126, 0.05) 39% 45%, transparent 45% 52%, rgba(255, 196, 126, 0.07) 52% 58%, transparent 58% 66%, rgba(255, 196, 126, 0.05) 66% 73%, transparent 73% 80%, rgba(255, 196, 126, 0.04) 80% 87%, transparent 87% 100%);
+}
+
+.tower-light {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 226, 174, 0.75);
+  box-shadow: 0 0 16px rgba(255, 214, 158, 0.75);
+}
+
+.tower-light-a {
+  top: 12%;
+  right: 16%;
+}
+
+.tower-light-b {
+  top: 36%;
+  left: 18%;
+}
+
+.rooftop {
+  left: 18.8%;
+  bottom: 66.4%;
+  width: min(21vw, 260px);
+  height: 16px;
+  border-radius: 12px 12px 8px 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 40%),
+    var(--rooftop);
+  box-shadow:
+    0 2px 0 var(--rooftop-line),
+    0 12px 34px rgba(16, 12, 20, 0.24);
+}
+
+.player {
+  left: calc(18.8% + 150px);
+  bottom: calc(66.4% + 16px);
+  width: 36px;
+  height: 84px;
+  transform: translateX(-50%);
+  transition: transform 120ms linear;
+  transform-origin: center bottom;
+}
+
+.player::before,
+.player::after {
+  content: "";
+  position: absolute;
+}
+
+.player::before {
+  top: 0;
+  left: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 45% 35%, rgba(255, 255, 255, 0.28), transparent 28%),
+    #f2dcc8;
+  box-shadow: 0 0 20px rgba(255, 227, 195, 0.18);
+}
+
+.player::after {
+  left: 10px;
+  top: 20px;
+  width: 18px;
+  height: 56px;
+  border-radius: 11px 11px 8px 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 20%),
+    linear-gradient(180deg, #ec7e63 0%, #8f3257 64%, #291728 100%);
+  box-shadow:
+    -14px 10px 0 -8px #f2dcc8,
+    14px 10px 0 -8px #f2dcc8,
+    -8px 58px 0 -6px #120f17,
+    8px 58px 0 -6px #120f17;
+}
+
+.player.walking {
+  animation: sway 0.38s infinite alternate ease-in-out;
+}
+
+.player.falling {
+  transition: none;
+  animation: falling-drift 0.9s infinite ease-in-out;
+}
+
+.corpse-layer {
+  inset: 0;
+  pointer-events: none;
+}
+
+.corpse {
+  position: absolute;
+  width: 64px;
+  height: 24px;
+  border-radius: 18px 14px 18px 16px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent 35%),
+    linear-gradient(180deg, #62334a 0%, #281723 100%);
+  box-shadow:
+    12px -6px 0 -10px #f2dcc8,
+    0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.flashback-overlay,
+.whiteout,
+.start-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.flashback-overlay {
+  z-index: 7;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms linear;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 42%),
+    rgba(10, 8, 15, 0.2);
+}
+
+.flashback-overlay.active {
+  opacity: 1;
+}
+
+.flashback-frame {
+  position: absolute;
+  width: clamp(190px, 20vw, 320px);
+  aspect-ratio: 4 / 5;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 243, 219, 0.62), rgba(255, 175, 124, 0.28)),
+    linear-gradient(180deg, rgba(94, 51, 82, 0.74), rgba(16, 14, 25, 0.44));
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 18px 60px rgba(7, 6, 9, 0.34),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: scale(0.9) rotate(-3deg);
+}
+
+.flashback-frame.visible {
+  opacity: 0.92;
+}
+
+.flashback-frame-a {
+  top: 14%;
+  left: 14%;
+}
+
+.flashback-frame-b {
+  top: 34%;
+  right: 14%;
+}
+
+.flashback-frame-c {
+  bottom: 16%;
+  left: 32%;
+}
+
+.flashback-caption {
+  position: absolute;
+  left: 40px;
+  bottom: 36px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  color: rgba(255, 247, 235, 0.92);
+  letter-spacing: 0.03em;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.42);
+}
+
+.whiteout {
+  z-index: 10;
+  background: var(--white);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+.whiteout.active {
+  opacity: 1;
+}
+
+.prompt {
+  left: 50%;
+  top: 50%;
+  width: min(90vw, 560px);
+  padding: 34px;
+  border-radius: 28px;
+  background: rgba(20, 14, 26, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 24px 80px rgba(6, 6, 8, 0.42);
+}
+
+.prompt.hidden {
+  display: none;
+}
+
+.prompt h2 {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+}
+
+.prompt-copy {
+  margin: 14px 0 26px;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.prompt-actions button {
+  flex: 1;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.prompt-actions button:hover,
+.prompt-actions button:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.prompt-actions .danger {
+  color: #1c0e12;
+  background: linear-gradient(180deg, #f7d4c3 0%, var(--danger) 100%);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.start-overlay {
+  z-index: 9;
+  display: grid;
+  place-items: end center;
+  padding: 24px;
+  background: linear-gradient(180deg, transparent 0%, rgba(17, 13, 22, 0.24) 62%, rgba(17, 13, 22, 0.74) 100%);
+  transition: opacity 240ms ease;
+}
+
+.start-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.start-overlay p {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-soft);
+}
+
+@keyframes sway {
+  from {
+    transform: translateX(-50%) rotate(-1.5deg);
+  }
+
+  to {
+    transform: translateX(-50%) rotate(1.5deg);
+  }
+}
+
+@keyframes falling-drift {
+  0% {
+    transform: translateX(-50%) rotate(-6deg);
+  }
+
+  50% {
+    transform: translateX(-50%) rotate(4deg);
+  }
+
+  100% {
+    transform: translateX(-50%) rotate(-7deg);
+  }
+}
+
+@media (max-width: 820px) {
+  .scene {
+    height: min(100vh, 860px);
+    border-radius: 0;
+  }
+
+  .hud,
+  .counter-panel {
+    left: 20px;
+    right: 20px;
+  }
+
+  .counter-panel {
+    top: auto;
+    bottom: 24px;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .flashback-frame {
+    width: clamp(130px, 28vw, 190px);
+  }
+
+  .flashback-frame-a {
+    left: 6%;
+  }
+
+  .flashback-frame-b {
+    right: 6%;
+  }
+
+  .flashback-frame-c {
+    left: 18%;
+  }
+}
