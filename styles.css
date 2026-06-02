@@ -378,13 +378,13 @@ button {
     opacity 1200ms ease,
     transform 2200ms ease,
     filter 2200ms ease;
-  filter: blur(22px) saturate(0.86);
+  filter: blur(10px) saturate(1.02);
 }
 
 .flashback-wash.visible {
-  opacity: 0.94;
+  opacity: 0.98;
   transform: scale(1);
-  filter: blur(2px) saturate(1);
+  filter: blur(0.6px) saturate(1.08);
 }
 
 .flashback-wash::after {
@@ -392,8 +392,8 @@ button {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(14, 10, 18, 0.22), rgba(14, 10, 18, 0.44)),
-    radial-gradient(circle at center, rgba(255, 236, 214, 0.18), transparent 42%);
+    linear-gradient(180deg, rgba(14, 10, 18, 0.08), rgba(14, 10, 18, 0.24)),
+    radial-gradient(circle at center, rgba(255, 236, 214, 0.1), transparent 46%);
 }
 
 .flashback-wash-a {

@@ -57,7 +57,7 @@ const state = {
   availableFlashbacks: [],
   flashbackIndex: 0,
   flashbackTimer: 0,
-  flashbackNextChange: 0.48,
+  flashbackNextChange: 0.82,
   flashbackStarted: false,
   promptShown: false,
 };
@@ -135,7 +135,7 @@ function updateWorldMetrics() {
   state.sceneWidth = world.clientWidth;
   state.towerWidth = Math.min(state.sceneWidth * 0.18, 245);
   state.roofWidth = Math.min(state.sceneWidth * 0.24, 320);
-  state.towerLeft = state.sceneWidth * 0.57;
+  state.towerLeft = state.sceneWidth * 0.6;
   state.roofWorldY = Math.max(state.sceneHeight * 2.55, 2050);
   state.groundWorldY = 48;
   state.towerHeight = state.roofWorldY + 250;
@@ -162,7 +162,7 @@ function resetFlashbacks() {
   });
   state.flashbackStarted = false;
   state.flashbackTimer = 0;
-  state.flashbackNextChange = 0.48;
+  state.flashbackNextChange = 0.82;
   state.promptShown = false;
 }
 
@@ -201,7 +201,7 @@ function updateFlashbacks(deltaSeconds, progress) {
     flashbackWashes[0].classList.add("visible");
   }
 
-  flashbackOverlay.style.opacity = String(lerp(0.26, 0.98, slowPhase));
+  flashbackOverlay.style.opacity = String(lerp(0.34, 1, slowPhase));
   state.flashbackTimer += deltaSeconds;
 
   if (state.flashbackTimer >= state.flashbackNextChange) {
@@ -213,7 +213,7 @@ function updateFlashbacks(deltaSeconds, progress) {
       wash.classList.toggle("visible", active);
       wash.style.opacity = active ? String(lerp(0.72, 0.96, slowPhase)) : "0";
     });
-    state.flashbackNextChange = lerp(0.42, 1.15, slowPhase) + Math.random() * 0.12;
+    state.flashbackNextChange = lerp(0.9, 1.95, slowPhase) + Math.random() * 0.18;
   }
 }
 
@@ -356,20 +356,20 @@ function updateFalling(deltaSeconds) {
   const isPromptFall = state.mode === "confirming";
   const isChosenYes = state.mode === "chosen-yes";
   const timeScale = isPromptFall
-    ? lerp(0.22, 0.1, slowPhase)
+    ? lerp(0.16, 0.07, slowPhase)
     : isChosenYes
-      ? lerp(0.3, 0.16, slowPhase)
-      : lerp(0.48, 0.2, slowPhase);
+      ? lerp(0.24, 0.12, slowPhase)
+      : lerp(0.36, 0.14, slowPhase);
   const gravity = isPromptFall
-    ? lerp(motion.baseGravity * 0.24, motion.baseGravity * 0.1, slowPhase)
+    ? lerp(motion.baseGravity * 0.16, motion.baseGravity * 0.06, slowPhase)
     : isChosenYes
-      ? lerp(motion.baseGravity * 0.34, motion.baseGravity * 0.16, slowPhase)
-      : lerp(motion.baseGravity * 0.56, motion.baseGravity * 0.2, slowPhase);
+      ? lerp(motion.baseGravity * 0.24, motion.baseGravity * 0.1, slowPhase)
+      : lerp(motion.baseGravity * 0.4, motion.baseGravity * 0.14, slowPhase);
   const effectiveDelta = deltaSeconds * timeScale;
 
   state.fallVelocity += gravity * effectiveDelta;
   state.playerWorldY -= state.fallVelocity * effectiveDelta;
-  state.playerX -= lerp(6, 2, slowPhase) * deltaSeconds;
+  state.playerX -= lerp(4.5, 1.6, slowPhase) * deltaSeconds;
 
   const cameraTarget = Math.max(0, state.playerWorldY - state.sceneHeight * lerp(0.57, 0.46, slowPhase));
   state.cameraY = lerp(state.cameraY, cameraTarget, isPromptFall ? 0.028 : 0.042 + slowPhase * 0.03);
