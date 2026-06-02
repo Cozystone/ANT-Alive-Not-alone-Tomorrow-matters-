@@ -10,19 +10,23 @@ const bgm = document.getElementById("bgm");
 const startOverlay = document.getElementById("startOverlay");
 const promptButtons = [...prompt.querySelectorAll("button")];
 const flashbackFrames = [...flashbackOverlay.querySelectorAll(".flashback-frame")];
+const towerWrap = document.getElementById("towerWrap");
+const rooftop = document.getElementById("rooftop");
+const ground = document.getElementById("ground");
+const skylineFar = document.getElementById("skylineFar");
+const skylineNear = document.getElementById("skylineNear");
 
 const flashbackSources = [
   "assets/flashbacks/photo-1.jpg",
   "assets/flashbacks/photo-2.jpg",
   "assets/flashbacks/photo-3.jpg",
   "assets/flashbacks/photo-4.jpg",
-  "assets/flashbacks/photo-5.jpg",
 ];
 
 const fallbackCaptions = [
   "어떤 여름의 저녁",
   "멀리서 웃음소리가 들리던 식탁",
-  "하와이의 노을을 닮은 사진 한 장",
+  "하와이의 빛이 눈꺼풀 안쪽에 남아 있다",
   "손을 놓치지 않던 밤",
   "이름을 부르면 돌아보던 순간",
   "그때는 당연했던 체온",
@@ -30,26 +34,36 @@ const fallbackCaptions = [
 
 const state = {
   mode: "idle",
-  playerX: 150,
-  playerY: 0,
-  fallVelocity: 0,
-  bodies: [],
-  bodyCount: 0,
   keys: {
     ArrowLeft: false,
     ArrowRight: false,
   },
   startedAudio: false,
-  flashbackIndex: 0,
-  flashbackTimer: null,
+  playerX: 150,
+  playerWorldY: 0,
+  fallVelocity: 0,
+  bodyCount: 0,
+  bodies: [],
+  roofWidth: 320,
+  towerWidth: 240,
+  towerLeft: 0,
+  roofWorldY: 0,
+  groundWorldY: 44,
+  towerHeight: 0,
+  cameraY: 0,
+  baseCameraY: 0,
+  sceneHeight: 0,
+  sceneWidth: 0,
   availableFlashbacks: [],
-  rooftopWidth: 260,
-  groundHeight: 0,
+  flashbackIndex: 0,
+  flashbackTimer: 0,
+  flashbackNextChange: 0.18,
+  flashbackStarted: false,
 };
 
 const motion = {
-  speed: 220,
-  gravity: 1600,
+  walkSpeed: 235,
+  baseGravity: 950,
   lastTime: 0,
   frameId: 0,
 };
@@ -66,35 +80,33 @@ function preloadFlashbacks() {
 
   Promise.all(checks).then((results) => {
     state.availableFlashbacks = results.filter(Boolean);
-    randomizeFlashbackFrames();
+    randomizeFlashbackFrames(0);
   });
 }
 
-function updateWorldMetrics() {
-  const styles = getComputedStyle(document.documentElement);
-  const rooftopWidth = Math.min(window.innerWidth * 0.21, 260);
-  state.rooftopWidth = rooftopWidth;
-  state.groundHeight = world.clientHeight * 0.12;
-  if (state.mode === "idle" || state.mode === "walking") {
-    state.playerY = getRooflineY();
-  }
-  void styles;
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
-function getRooflineY() {
-  return world.clientHeight * 0.664 + 16;
+function lerp(start, end, amount) {
+  return start + (end - start) * amount;
+}
+
+function getGroundScreenY() {
+  return state.groundWorldY - state.cameraY;
 }
 
 function getRoofLeftX() {
-  return world.clientWidth * 0.188;
+  return state.towerLeft - state.roofWidth * 0.09;
 }
 
 function getRoofRightLimit() {
-  return state.rooftopWidth - 20;
+  return state.roofWidth - 26;
 }
 
-function getGroundY() {
-  return state.groundHeight - 8;
+function getProgress() {
+  const totalDistance = state.roofWorldY - state.groundWorldY;
+  return clamp((state.roofWorldY - state.playerWorldY) / totalDistance, 0, 1);
 }
 
 function startAudioIfNeeded() {
@@ -103,7 +115,7 @@ function startAudioIfNeeded() {
   }
 
   state.startedAudio = true;
-  bgm.volume = 0.6;
+  bgm.volume = 0.64;
   bgm.play().catch(() => {
     state.startedAudio = false;
   });
@@ -121,79 +133,131 @@ function randomCaption() {
   return fallbackCaptions[Math.floor(Math.random() * fallbackCaptions.length)];
 }
 
-function randomizeFlashbackFrames() {
-  flashbackFrames.forEach((frame, index) => {
+function updateWorldMetrics() {
+  state.sceneHeight = world.clientHeight;
+  state.sceneWidth = world.clientWidth;
+  state.towerWidth = Math.min(state.sceneWidth * 0.18, 245);
+  state.roofWidth = Math.min(state.sceneWidth * 0.24, 320);
+  state.towerLeft = state.sceneWidth * 0.165;
+  state.roofWorldY = Math.max(state.sceneHeight * 1.9, 1500);
+  state.groundWorldY = 48;
+  state.towerHeight = state.roofWorldY + 210;
+  state.baseCameraY = state.roofWorldY - state.sceneHeight * 0.78;
+
+  towerWrap.style.left = `${state.towerLeft}px`;
+  towerWrap.style.width = `${state.towerWidth}px`;
+  towerWrap.style.height = `${state.towerHeight}px`;
+  rooftop.style.width = `${state.roofWidth}px`;
+  ground.style.height = `${Math.max(152, state.sceneHeight * 0.17)}px`;
+
+  if (state.mode === "idle" || state.mode === "walking") {
+    state.cameraY = state.baseCameraY;
+    state.playerWorldY = state.roofWorldY;
+  }
+}
+
+function resetFlashbacks() {
+  flashbackOverlay.classList.remove("active");
+  flashbackOverlay.style.opacity = "";
+  flashbackFrames.forEach((frame) => {
     frame.classList.remove("visible");
-    if (state.availableFlashbacks.length > 0) {
-      const source = state.availableFlashbacks[(state.flashbackIndex + index) % state.availableFlashbacks.length];
-      frame.style.backgroundImage = `linear-gradient(135deg, rgba(255, 243, 219, 0.2), rgba(255, 175, 124, 0.12)), url("${source}")`;
-    } else {
-      const angle = 125 + index * 28;
-      const tone = 18 + index * 12;
-      frame.style.backgroundImage = `linear-gradient(${angle}deg, rgba(255, 243, 219, 0.68), rgba(255, 176, 126, 0.34)), radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.65), transparent 20%), linear-gradient(180deg, rgba(${120 + tone}, ${76 + tone}, ${89 + tone}, 0.88), rgba(${30 + index * 8}, ${18 + index * 6}, ${42 + index * 6}, 0.76))`;
-    }
+    frame.style.opacity = "";
+  });
+  state.flashbackStarted = false;
+  state.flashbackTimer = 0;
+  state.flashbackNextChange = 0.18;
+}
+
+function randomizeFlashbackFrames(progress) {
+  const sources = state.availableFlashbacks.length > 0 ? state.availableFlashbacks : flashbackSources;
+
+  flashbackFrames.forEach((frame, index) => {
+    const source = sources[(state.flashbackIndex + index) % sources.length];
+    const posX = 30 + ((state.flashbackIndex * 11 + index * 19) % 40);
+    const posY = 22 + ((state.flashbackIndex * 7 + index * 13) % 46);
+    const rotation = -6 + ((state.flashbackIndex + index) % 12);
+    const scale = lerp(0.92, 1.04, clamp(progress, 0, 1));
+    frame.style.backgroundImage = `linear-gradient(180deg, rgba(255, 236, 214, 0.14), rgba(255, 184, 132, 0.06)), url("${source}")`;
+    frame.style.backgroundPosition = `${posX}% ${posY}%`;
+    frame.style.setProperty("--frame-rotate", `${rotation}deg`);
+    frame.style.setProperty("--frame-scale", `${scale}`);
+    frame.style.setProperty("--frame-hidden-shift", `${14 - progress * 10}px`);
   });
   flashbackCaption.textContent = randomCaption();
 }
 
-function startFlashbacks() {
-  flashbackOverlay.classList.add("active");
-  randomizeFlashbackFrames();
-  flashbackFrames.forEach((frame, index) => {
-    frame.classList.toggle("visible", index < 2);
-  });
+function updateFlashbacks(deltaSeconds, progress) {
+  if (progress < 0.36) {
+    return;
+  }
 
-  state.flashbackTimer = window.setInterval(() => {
-    state.flashbackIndex += 1;
-    flashbackFrames.forEach((frame) => {
-      frame.classList.remove("visible");
+  const slowPhase = clamp((progress - 0.36) / 0.52, 0, 1);
+
+  if (!state.flashbackStarted) {
+    state.flashbackStarted = true;
+    flashbackOverlay.classList.add("active");
+    randomizeFlashbackFrames(progress);
+    flashbackFrames.forEach((frame, index) => {
+      frame.classList.toggle("visible", index < 2);
     });
-    randomizeFlashbackFrames();
-    const visibleCount = 1 + Math.floor(Math.random() * flashbackFrames.length);
-    for (let i = 0; i < visibleCount; i += 1) {
-      flashbackFrames[(state.flashbackIndex + i) % flashbackFrames.length].classList.add("visible");
-    }
-  }, 140);
-}
+  }
 
-function stopFlashbacks() {
-  flashbackOverlay.classList.remove("active");
-  flashbackFrames.forEach((frame) => frame.classList.remove("visible"));
-  if (state.flashbackTimer) {
-    window.clearInterval(state.flashbackTimer);
-    state.flashbackTimer = null;
+  flashbackOverlay.style.opacity = String(lerp(0.28, 1, slowPhase));
+  state.flashbackTimer += deltaSeconds;
+
+  if (state.flashbackTimer >= state.flashbackNextChange) {
+    state.flashbackTimer = 0;
+    state.flashbackIndex += 1;
+    randomizeFlashbackFrames(progress);
+
+    flashbackFrames.forEach((frame, index) => {
+      const shouldShow = slowPhase > 0.55 ? index === state.flashbackIndex % flashbackFrames.length : index < 2 + (state.flashbackIndex % 2);
+      frame.classList.toggle("visible", shouldShow);
+      frame.style.opacity = shouldShow ? String(lerp(0.7, 0.96, slowPhase)) : "0";
+    });
+
+    state.flashbackNextChange = lerp(0.11, 0.44, slowPhase) + Math.random() * 0.05;
   }
 }
 
-function updatePlayerPosition() {
-  const x = getRoofLeftX() + state.playerX;
-  player.style.left = `${x}px`;
-  player.style.bottom = `${state.playerY}px`;
-}
-
-function updateBodies() {
+function renderBodies() {
   bodyCountEl.textContent = String(state.bodyCount);
   corpseLayer.innerHTML = "";
 
-  state.bodies.forEach((body, index) => {
+  state.bodies.forEach((body) => {
     const corpse = document.createElement("div");
     corpse.className = "corpse";
     corpse.style.left = `${body.x}px`;
-    corpse.style.bottom = `${body.y}px`;
-    corpse.style.transform = `rotate(${body.angle}deg)`;
-    corpse.style.opacity = `${Math.max(0.5, 1 - index * 0.02)}`;
+    corpse.style.bottom = `${body.y - state.cameraY}px`;
+    corpse.style.transform = `rotate(${body.angle}deg) scale(${body.scale})`;
     corpseLayer.appendChild(corpse);
   });
 }
 
+function renderWorld() {
+  towerWrap.style.bottom = `${-state.cameraY}px`;
+  ground.style.bottom = `${-state.cameraY - 110}px`;
+  skylineFar.style.bottom = `${28 - state.cameraY * 0.18}px`;
+  skylineNear.style.bottom = `${-14 - state.cameraY * 0.36}px`;
+
+  const playerScreenX = getRoofLeftX() + state.playerX;
+  const playerScreenY = state.playerWorldY - state.cameraY;
+  player.style.left = `${playerScreenX}px`;
+  player.style.bottom = `${playerScreenY}px`;
+
+  renderBodies();
+}
+
 function resetPlayer() {
   state.mode = "idle";
-  state.playerX = 150;
-  state.playerY = getRooflineY();
+  state.playerX = Math.min(170, state.roofWidth * 0.55);
+  state.playerWorldY = state.roofWorldY;
   state.fallVelocity = 0;
+  state.cameraY = state.baseCameraY;
   player.classList.remove("falling");
   player.classList.remove("walking");
-  updatePlayerPosition();
+  resetFlashbacks();
+  renderWorld();
 }
 
 function beginFall() {
@@ -202,30 +266,35 @@ function beginFall() {
   }
 
   state.mode = "falling";
-  state.fallVelocity = 90;
+  state.fallVelocity = 35;
   player.classList.add("falling");
   player.classList.remove("walking");
-  startFlashbacks();
+  resetFlashbacks();
 }
 
 function showPrompt() {
   state.mode = "confirming";
-  stopFlashbacks();
+  state.playerWorldY = state.groundWorldY;
+  state.cameraY = 0;
+  player.classList.remove("falling");
+  resetFlashbacks();
   setPromptVisible(true);
+  renderWorld();
   promptButtons[0].focus();
 }
 
 function addCorpse() {
-  const baseX = world.clientWidth * 0.21 + (state.bodyCount % 7) * 18;
-  const layer = Math.floor(state.bodyCount / 7);
+  const row = Math.floor(state.bodyCount / 6);
+  const col = state.bodyCount % 6;
   const body = {
-    x: baseX + Math.random() * 26,
-    y: 18 + layer * 10,
-    angle: -18 + Math.random() * 36,
+    x: state.towerLeft - 12 + col * 32 + Math.random() * 18,
+    y: 16 + row * 11,
+    angle: -10 + Math.random() * 24,
+    scale: 0.88 + Math.random() * 0.16,
   };
+
   state.bodies.push(body);
   state.bodyCount += 1;
-  updateBodies();
 }
 
 function handleChoice(choice) {
@@ -238,10 +307,10 @@ function handleChoice(choice) {
   if (choice === "yes") {
     addCorpse();
     state.mode = "corpse-landed";
-    player.style.bottom = `${getGroundY()}px`;
+    renderWorld();
     window.setTimeout(() => {
       resetPlayer();
-    }, 320);
+    }, 360);
     return;
   }
 
@@ -249,10 +318,10 @@ function handleChoice(choice) {
   whiteout.classList.add("active");
   window.setTimeout(() => {
     resetPlayer();
-  }, 700);
+  }, 760);
   window.setTimeout(() => {
     whiteout.classList.remove("active");
-  }, 1500);
+  }, 1480);
 }
 
 function updateWalking(deltaSeconds) {
@@ -277,7 +346,7 @@ function updateWalking(deltaSeconds) {
     player.classList.add("walking");
   }
 
-  state.playerX += direction * motion.speed * deltaSeconds;
+  state.playerX += direction * motion.walkSpeed * deltaSeconds;
 
   if (state.playerX > getRoofRightLimit()) {
     state.playerX = getRoofRightLimit();
@@ -289,11 +358,22 @@ function updateWalking(deltaSeconds) {
 }
 
 function updateFalling(deltaSeconds) {
-  state.fallVelocity += motion.gravity * deltaSeconds;
-  state.playerY -= state.fallVelocity * deltaSeconds;
-  state.playerX -= 20 * deltaSeconds;
-  if (state.playerY <= getGroundY()) {
-    state.playerY = getGroundY();
+  const progress = getProgress();
+  const slowPhase = clamp((progress - 0.36) / 0.52, 0, 1);
+  const timeScale = lerp(1, 0.48, slowPhase);
+  const gravity = lerp(motion.baseGravity, motion.baseGravity * 0.52, slowPhase);
+  const effectiveDelta = deltaSeconds * timeScale;
+
+  state.fallVelocity += gravity * effectiveDelta;
+  state.playerWorldY -= state.fallVelocity * effectiveDelta;
+  state.playerX -= lerp(16, 6, slowPhase) * deltaSeconds;
+
+  const cameraTarget = Math.max(0, state.playerWorldY - state.sceneHeight * lerp(0.54, 0.42, slowPhase));
+  state.cameraY = lerp(state.cameraY, cameraTarget, 0.08 + slowPhase * 0.05);
+
+  updateFlashbacks(deltaSeconds, progress);
+
+  if (state.playerWorldY <= state.groundWorldY) {
     showPrompt();
   }
 }
@@ -312,7 +392,7 @@ function animate(timestamp) {
     updateFalling(deltaSeconds);
   }
 
-  updatePlayerPosition();
+  renderWorld();
   motion.frameId = window.requestAnimationFrame(animate);
 }
 
@@ -331,8 +411,7 @@ function bindEvents() {
   window.addEventListener("keyup", (event) => onKeyChange(event, false));
   window.addEventListener("resize", () => {
     updateWorldMetrics();
-    updatePlayerPosition();
-    updateBodies();
+    renderWorld();
   });
   prompt.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-choice]");
@@ -347,7 +426,6 @@ function init() {
   preloadFlashbacks();
   updateWorldMetrics();
   resetPlayer();
-  updateBodies();
   bindEvents();
   motion.frameId = window.requestAnimationFrame(animate);
 }

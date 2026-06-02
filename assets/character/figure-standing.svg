@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 520">
+  <defs>
+    <linearGradient id="coat" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#3f343a"/>
+      <stop offset="45%" stop-color="#241d24"/>
+      <stop offset="100%" stop-color="#151118"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#836466"/>
+      <stop offset="100%" stop-color="#231920"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#d5b6a5"/>
+      <stop offset="100%" stop-color="#9d7c6e"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-20%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M93 92c-15 15-26 38-26 63v58c0 18-5 42-16 63l-22 48c-12 27-18 58-15 88 1 8 7 14 15 14h44c7 0 13-5 15-12l10-38 8 36c2 8 8 14 16 14h47c8 0 14-6 15-14 2-29-2-60-11-87l-17-53c-8-25-12-51-11-77l3-55c1-34-10-66-31-89l-11-12c-3-3-7-4-11-4h-4c-3 0-7 1-9 3z" fill="url(#coat)"/>
+    <path d="M110 103c-12 0-25 4-37 11l-8 6 16 12c11 8 18 20 19 33l2 34c1 17-1 34-7 50l-11 34 25 5 33-9-12-52c-4-15-5-31-3-47l4-40c1-12 7-24 18-31l17-12-10-9c-11-9-24-14-38-15l-8 30z" fill="url(#inner)" opacity="0.85"/>
+    <ellipse cx="109" cy="58" rx="34" ry="42" fill="url(#skin)"/>
+    <path d="M76 57c2-28 19-50 41-50 17 0 33 13 40 33 2 5 3 10 3 16-6-5-12-7-18-7-7 0-13 2-17 6l-12 11c-10 9-23 13-37 10z" fill="#1f181d"/>
+    <path d="M87 76c10 6 23 5 33-1l14-8c5-3 12-2 16 2l7 6c-3 14-8 25-15 33-12 13-28 19-47 16l-7-1c-5-10-7-20-7-31 0-6 2-12 6-16z" fill="#2c2128" opacity="0.76"/>
+    <path d="M72 158c-16 7-28 22-33 39l-11 40c-2 6 2 12 9 14l15 4c6 2 13-2 15-9l8-31 11-34-14-23z" fill="#1b141a"/>
+    <path d="M154 156c15 8 26 22 31 39l10 42c2 7-2 13-9 15l-15 4c-6 2-13-2-15-9l-8-33-9-31 15-27z" fill="#181218"/>
+    <path d="M66 421l-11 74c-1 8 5 15 13 15h21c7 0 13-5 14-12l8-71-45-6z" fill="#101016"/>
+    <path d="M118 428l13 71c1 7 7 11 14 11h22c8 0 14-7 13-15l-12-74-50 7z" fill="#0e0d14"/>
+    <path d="M95 127c4 14 17 23 31 23 16 0 31-11 35-27l4-14-18-12-17 16-35 14z" fill="#20171e"/>
+  </g>
+</svg>

@@ -12,8 +12,9 @@
 <body>
   <main class="scene-shell">
     <section class="scene" aria-label="Rooftop fall interactive scene">
-      <div class="sky-glow sky-glow-a"></div>
-      <div class="sky-glow sky-glow-b"></div>
+      <div class="scene-photo scene-photo-horizon"></div>
+      <div class="scene-photo scene-photo-city"></div>
+      <div class="sun-haze"></div>
       <div class="grain"></div>
 
       <header class="hud">
@@ -27,15 +28,21 @@
         <strong id="bodyCount">0</strong>
       </div>
 
+      <details class="credits">
+        <summary>source credits</summary>
+        <p>Rooftop Sunset by Sam Mellors, Fiery sunset clouds over city silhouette by Abdellatif Attahiri, and flashback photos from Wikimedia Commons creators noted in README.</p>
+      </details>
+
       <div class="world" id="world">
-        <div class="cityline cityline-back"></div>
-        <div class="cityline cityline-mid"></div>
-        <div class="ground" id="ground"></div>
-        <div class="tower">
-          <div class="tower-light tower-light-a"></div>
-          <div class="tower-light tower-light-b"></div>
+        <div class="atmosphere atmosphere-far" id="skylineFar"></div>
+        <div class="atmosphere atmosphere-near" id="skylineNear"></div>
+        <div class="tower-wrap" id="towerWrap">
+          <div class="antenna"></div>
+          <div class="tower"></div>
+          <div class="tower-reflection"></div>
+          <div class="rooftop" id="rooftop"></div>
         </div>
-        <div class="rooftop" id="rooftop"></div>
+        <div class="ground" id="ground"></div>
         <div class="corpse-layer" id="corpseLayer" aria-hidden="true"></div>
         <div class="player" id="player" aria-label="character"></div>
       </div>
@@ -44,6 +51,7 @@
         <div class="flashback-frame flashback-frame-a"></div>
         <div class="flashback-frame flashback-frame-b"></div>
         <div class="flashback-frame flashback-frame-c"></div>
+        <div class="flashback-frame flashback-frame-d"></div>
         <div class="flashback-caption" id="flashbackCaption">어떤 여름의 저녁</div>
       </div>
 

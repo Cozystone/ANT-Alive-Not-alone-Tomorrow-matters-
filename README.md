@@ -22,4 +22,21 @@ python -m http.server 4173
 - `assets/flashbacks/photo-4.jpg`
 - `assets/flashbacks/photo-5.jpg`
 
-해당 파일이 없으면 추상적인 색면 이미지로 대체됩니다.
+해당 파일이 없으면 남아 있는 사진만 순환합니다.
+
+## Included Visual Sources
+
+현재 프로젝트에는 다음 공개 라이선스 기반 이미지가 로컬 자산으로 포함되어 있습니다.
+
+- `assets/environment/rooftop-sunset.jpg`
+  - Sam Mellors, "Rooftop Sunset", Wikimedia Commons, CC BY 3.0
+- `assets/environment/city-sunset.jpg`
+  - Abdellatif Attahiri, "Fiery sunset clouds over city silhouette", Wikimedia Commons
+- `assets/flashbacks/photo-1.jpg`
+  - David Straight, "Family watching beach sunset", via Wikimedia Commons / Unsplash archive
+- `assets/flashbacks/photo-2.jpg`
+  - Diego Delso, "Sunset Beach, Oahu, Hawaii, USA1", Wikimedia Commons
+- `assets/flashbacks/photo-3.jpg`
+  - "Sunset Family (25199546536)", Wikimedia Commons
+- `assets/flashbacks/photo-4.jpg`
+  - PaulT, "HI Oahu Sunset Beach", Wikimedia Commons
