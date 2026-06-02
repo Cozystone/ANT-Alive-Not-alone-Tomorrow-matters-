@@ -185,11 +185,11 @@ function randomizeFlashbackFrames(progress) {
 }
 
 function updateFlashbacks(deltaSeconds, progress) {
-  if (progress < 0.48) {
+  if (progress < 0.3) {
     return;
   }
 
-  const slowPhase = clamp((progress - 0.48) / 0.42, 0, 1);
+  const slowPhase = clamp((progress - 0.3) / 0.6, 0, 1);
 
   if (!state.flashbackStarted) {
     state.flashbackStarted = true;
@@ -355,7 +355,7 @@ function updateWalking(deltaSeconds) {
 
 function updateFalling(deltaSeconds) {
   const progress = getProgress();
-  const slowPhase = clamp((progress - 0.48) / 0.42, 0, 1);
+  const slowPhase = clamp((progress - 0.3) / 0.6, 0, 1);
   const isPromptFall = state.mode === "confirming";
   const isChosenYes = state.mode === "chosen-yes";
   const timeScale = isPromptFall
