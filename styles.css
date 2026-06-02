@@ -191,7 +191,7 @@ button {
 }
 
 .world {
-  z-index: 5;
+  z-index: 6;
 }
 
 .atmosphere,
@@ -353,7 +353,7 @@ button {
 }
 
 .flashback-overlay {
-  z-index: 9;
+  z-index: 4;
   opacity: 0;
   pointer-events: none;
   background:
@@ -405,16 +405,7 @@ button {
 }
 
 .flashback-caption {
-  position: absolute;
-  z-index: 3;
-  left: 42px;
-  bottom: 42px;
-  max-width: 22ch;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1.5rem, 2.3vw, 2.4rem);
-  line-height: 1.1;
-  color: rgba(255, 247, 237, 0.96);
-  text-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+  display: none;
 }
 
 .whiteout {

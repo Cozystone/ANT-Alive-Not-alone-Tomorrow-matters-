@@ -136,9 +136,9 @@ function updateWorldMetrics() {
   state.towerWidth = Math.min(state.sceneWidth * 0.18, 245);
   state.roofWidth = Math.min(state.sceneWidth * 0.24, 320);
   state.towerLeft = state.sceneWidth * 0.6;
-  state.roofWorldY = Math.max(state.sceneHeight * 2.55, 2050);
+  state.roofWorldY = Math.max(state.sceneHeight * 3.15, 2700);
   state.groundWorldY = 48;
-  state.towerHeight = state.roofWorldY + 250;
+  state.towerHeight = state.roofWorldY + 300;
   state.baseCameraY = state.roofWorldY - state.sceneHeight * 0.78;
 
   towerWrap.style.left = `${state.towerLeft}px`;
@@ -236,6 +236,9 @@ function renderWorld() {
   ground.style.bottom = `${-state.cameraY - 110}px`;
   skylineFar.style.bottom = `${28 - state.cameraY * 0.18}px`;
   skylineNear.style.bottom = `${-14 - state.cameraY * 0.36}px`;
+  const flashbackBlend = state.flashbackStarted ? clamp(Number.parseFloat(flashbackOverlay.style.opacity || "0"), 0, 1) : 0;
+  skylineFar.style.opacity = `${0.36 * (1 - flashbackBlend)}`;
+  skylineNear.style.opacity = `${0.9 * (1 - flashbackBlend)}`;
 
   const playerScreenX = getRoofLeftX() + state.playerX;
   const playerScreenY = state.playerWorldY - state.cameraY;
