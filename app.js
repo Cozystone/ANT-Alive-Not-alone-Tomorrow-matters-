@@ -9,7 +9,7 @@ const whiteout = document.getElementById("whiteout");
 const bgm = document.getElementById("bgm");
 const startOverlay = document.getElementById("startOverlay");
 const promptButtons = [...prompt.querySelectorAll("button")];
-const flashbackFrames = [...flashbackOverlay.querySelectorAll(".flashback-frame")];
+const flashbackWashes = [...flashbackOverlay.querySelectorAll(".flashback-wash")];
 const towerWrap = document.getElementById("towerWrap");
 const rooftop = document.getElementById("rooftop");
 const ground = document.getElementById("ground");
@@ -57,7 +57,7 @@ const state = {
   availableFlashbacks: [],
   flashbackIndex: 0,
   flashbackTimer: 0,
-  flashbackNextChange: 0.34,
+  flashbackNextChange: 0.48,
   flashbackStarted: false,
   promptShown: false,
 };
@@ -81,7 +81,7 @@ function preloadFlashbacks() {
 
   Promise.all(checks).then((results) => {
     state.availableFlashbacks = results.filter(Boolean);
-    randomizeFlashbackFrames(0);
+    updateFlashbackBackground(0);
   });
 }
 
@@ -156,31 +156,34 @@ function updateWorldMetrics() {
 function resetFlashbacks() {
   flashbackOverlay.classList.remove("active");
   flashbackOverlay.style.opacity = "";
-  flashbackFrames.forEach((frame) => {
-    frame.classList.remove("visible");
-    frame.style.opacity = "";
+  flashbackWashes.forEach((wash) => {
+    wash.classList.remove("visible");
+    wash.style.opacity = "";
   });
   state.flashbackStarted = false;
   state.flashbackTimer = 0;
-  state.flashbackNextChange = 0.34;
+  state.flashbackNextChange = 0.48;
   state.promptShown = false;
 }
 
-function randomizeFlashbackFrames(progress) {
+function updateFlashbackBackground(progress) {
   const sources = state.availableFlashbacks.length > 0 ? state.availableFlashbacks : flashbackSources;
+  const lead = sources[state.flashbackIndex % sources.length];
+  const trail = sources[(state.flashbackIndex + 1) % sources.length];
+  const posLeadX = 28 + ((state.flashbackIndex * 13) % 42);
+  const posTrailX = 52 + ((state.flashbackIndex * 7) % 26);
+  const posLeadY = 22 + ((state.flashbackIndex * 9) % 34);
+  const posTrailY = 30 + ((state.flashbackIndex * 5) % 28);
+  const scale = lerp(1.06, 1, clamp(progress, 0, 1));
 
-  flashbackFrames.forEach((frame, index) => {
-    const source = sources[(state.flashbackIndex + index) % sources.length];
-    const posX = 30 + ((state.flashbackIndex * 11 + index * 19) % 40);
-    const posY = 22 + ((state.flashbackIndex * 7 + index * 13) % 46);
-    const rotation = -6 + ((state.flashbackIndex + index) % 12);
-    const scale = lerp(0.92, 1.04, clamp(progress, 0, 1));
-    frame.style.backgroundImage = `linear-gradient(180deg, rgba(255, 236, 214, 0.14), rgba(255, 184, 132, 0.06)), url("${source}")`;
-    frame.style.backgroundPosition = `${posX}% ${posY}%`;
-    frame.style.setProperty("--frame-rotate", `${rotation}deg`);
-    frame.style.setProperty("--frame-scale", `${scale}`);
-    frame.style.setProperty("--frame-hidden-shift", `${14 - progress * 10}px`);
-  });
+  flashbackWashes[0].style.backgroundImage = `linear-gradient(180deg, rgba(255, 239, 219, 0.14), rgba(255, 171, 121, 0.04)), url("${lead}")`;
+  flashbackWashes[0].style.backgroundPosition = `${posLeadX}% ${posLeadY}%`;
+  flashbackWashes[0].style.transform = `scale(${scale})`;
+
+  flashbackWashes[1].style.backgroundImage = `linear-gradient(180deg, rgba(255, 239, 219, 0.12), rgba(255, 171, 121, 0.02)), url("${trail}")`;
+  flashbackWashes[1].style.backgroundPosition = `${posTrailX}% ${posTrailY}%`;
+  flashbackWashes[1].style.transform = `scale(${scale * 1.02})`;
+
   flashbackCaption.textContent = randomCaption();
 }
 
@@ -194,29 +197,23 @@ function updateFlashbacks(deltaSeconds, progress) {
   if (!state.flashbackStarted) {
     state.flashbackStarted = true;
     flashbackOverlay.classList.add("active");
-    randomizeFlashbackFrames(progress);
-    flashbackFrames.forEach((frame, index) => {
-      frame.classList.toggle("visible", index < 2);
-    });
+    updateFlashbackBackground(progress);
+    flashbackWashes[0].classList.add("visible");
   }
 
-  flashbackOverlay.style.opacity = String(lerp(0.2, 0.96, slowPhase));
+  flashbackOverlay.style.opacity = String(lerp(0.26, 0.98, slowPhase));
   state.flashbackTimer += deltaSeconds;
 
   if (state.flashbackTimer >= state.flashbackNextChange) {
     state.flashbackTimer = 0;
     state.flashbackIndex += 1;
-    randomizeFlashbackFrames(progress);
-
-    flashbackFrames.forEach((frame, index) => {
-      const shouldShow = slowPhase > 0.58
-        ? index === state.flashbackIndex % flashbackFrames.length
-        : index < 2 + (state.flashbackIndex % 2);
-      frame.classList.toggle("visible", shouldShow);
-      frame.style.opacity = shouldShow ? String(lerp(0.64, 0.94, slowPhase)) : "0";
+    updateFlashbackBackground(progress);
+    flashbackWashes.forEach((wash, index) => {
+      const active = index === state.flashbackIndex % flashbackWashes.length;
+      wash.classList.toggle("visible", active);
+      wash.style.opacity = active ? String(lerp(0.72, 0.96, slowPhase)) : "0";
     });
-
-    state.flashbackNextChange = lerp(0.28, 0.86, slowPhase) + Math.random() * 0.08;
+    state.flashbackNextChange = lerp(0.42, 1.15, slowPhase) + Math.random() * 0.12;
   }
 }
 
@@ -359,23 +356,23 @@ function updateFalling(deltaSeconds) {
   const isPromptFall = state.mode === "confirming";
   const isChosenYes = state.mode === "chosen-yes";
   const timeScale = isPromptFall
-    ? lerp(0.34, 0.2, slowPhase)
+    ? lerp(0.22, 0.1, slowPhase)
     : isChosenYes
-      ? lerp(0.46, 0.3, slowPhase)
-      : lerp(0.68, 0.42, slowPhase);
+      ? lerp(0.3, 0.16, slowPhase)
+      : lerp(0.48, 0.2, slowPhase);
   const gravity = isPromptFall
-    ? lerp(motion.baseGravity * 0.36, motion.baseGravity * 0.18, slowPhase)
+    ? lerp(motion.baseGravity * 0.24, motion.baseGravity * 0.1, slowPhase)
     : isChosenYes
-      ? lerp(motion.baseGravity * 0.52, motion.baseGravity * 0.3, slowPhase)
-      : lerp(motion.baseGravity * 0.88, motion.baseGravity * 0.5, slowPhase);
+      ? lerp(motion.baseGravity * 0.34, motion.baseGravity * 0.16, slowPhase)
+      : lerp(motion.baseGravity * 0.56, motion.baseGravity * 0.2, slowPhase);
   const effectiveDelta = deltaSeconds * timeScale;
 
   state.fallVelocity += gravity * effectiveDelta;
   state.playerWorldY -= state.fallVelocity * effectiveDelta;
-  state.playerX -= lerp(8, 3, slowPhase) * deltaSeconds;
+  state.playerX -= lerp(6, 2, slowPhase) * deltaSeconds;
 
   const cameraTarget = Math.max(0, state.playerWorldY - state.sceneHeight * lerp(0.57, 0.46, slowPhase));
-  state.cameraY = lerp(state.cameraY, cameraTarget, isPromptFall ? 0.045 : 0.065 + slowPhase * 0.04);
+  state.cameraY = lerp(state.cameraY, cameraTarget, isPromptFall ? 0.028 : 0.042 + slowPhase * 0.03);
 
   updateFlashbacks(deltaSeconds, progress);
 

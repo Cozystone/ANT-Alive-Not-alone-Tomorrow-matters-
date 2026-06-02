@@ -366,55 +366,47 @@ button {
   opacity: 1;
 }
 
-.flashback-frame {
+.flashback-wash {
   position: absolute;
-  width: clamp(190px, 19vw, 310px);
-  aspect-ratio: 4 / 5;
-  border-radius: 22px;
+  inset: -6%;
   background-size: cover;
   background-position: center;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.34),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   mix-blend-mode: screen;
   opacity: 0;
-  transform: translate3d(0, var(--frame-hidden-shift, 20px), 0) scale(calc(var(--frame-scale, 1) * 0.88)) rotate(var(--frame-rotate, -5deg));
+  transform: scale(1.08);
   transition:
-    opacity 900ms ease,
-    transform 1400ms ease,
-    filter 1400ms ease;
-  filter: blur(6px) saturate(0.88);
+    opacity 1200ms ease,
+    transform 2200ms ease,
+    filter 2200ms ease;
+  filter: blur(22px) saturate(0.86);
 }
 
-.flashback-frame.visible {
-  opacity: 0.92;
-  transform: translate3d(0, 0, 0) scale(var(--frame-scale, 1)) rotate(var(--frame-rotate, -2deg));
-  filter: blur(0.4px) saturate(1);
+.flashback-wash.visible {
+  opacity: 0.94;
+  transform: scale(1);
+  filter: blur(2px) saturate(1);
 }
 
-.flashback-frame-a {
-  top: 14%;
-  left: 10%;
+.flashback-wash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(14, 10, 18, 0.22), rgba(14, 10, 18, 0.44)),
+    radial-gradient(circle at center, rgba(255, 236, 214, 0.18), transparent 42%);
 }
 
-.flashback-frame-b {
-  top: 22%;
-  right: 10%;
+.flashback-wash-a {
+  z-index: 1;
 }
 
-.flashback-frame-c {
-  bottom: 18%;
-  left: 22%;
-}
-
-.flashback-frame-d {
-  bottom: 12%;
-  right: 20%;
+.flashback-wash-b {
+  z-index: 2;
 }
 
 .flashback-caption {
   position: absolute;
+  z-index: 3;
   left: 42px;
   bottom: 42px;
   max-width: 22ch;
@@ -567,27 +559,4 @@ button {
     max-width: calc(100% - 40px);
   }
 
-  .flashback-frame {
-    width: clamp(120px, 30vw, 180px);
-  }
-
-  .flashback-frame-a {
-    top: 18%;
-    left: 4%;
-  }
-
-  .flashback-frame-b {
-    top: 18%;
-    right: 4%;
-  }
-
-  .flashback-frame-c {
-    left: 8%;
-    bottom: 24%;
-  }
-
-  .flashback-frame-d {
-    right: 6%;
-    bottom: 20%;
-  }
 }
