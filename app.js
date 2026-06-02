@@ -52,6 +52,8 @@ const state = {
   flashbackNextChange: 1.15,
   flashbackStarted: false,
   promptShown: false,
+  activeWashIndex: 0,
+  washTimeout: 0,
 };
 
 const motion = {
@@ -146,26 +148,26 @@ function resetFlashbacks() {
     wash.classList.remove("visible");
     wash.style.opacity = "";
   });
+  if (state.washTimeout) {
+    window.clearTimeout(state.washTimeout);
+    state.washTimeout = 0;
+  }
   scene.classList.remove("flashback-mode");
   state.flashbackStarted = false;
   state.flashbackTimer = 0;
   state.flashbackNextChange = 1.15;
   state.promptShown = false;
+  state.activeWashIndex = 0;
 }
 
 function paintFlashbackPair() {
   const sources = state.availableFlashbacks.length > 0 ? state.availableFlashbacks : flashbackSources;
   const lead = sources[state.flashbackIndex % sources.length];
-  const trail = sources[(state.flashbackIndex + 1) % sources.length];
   const leadX = 26 + ((state.flashbackIndex * 11) % 44);
   const leadY = 24 + ((state.flashbackIndex * 7) % 28);
-  const trailX = 34 + ((state.flashbackIndex * 5) % 34);
-  const trailY = 20 + ((state.flashbackIndex * 9) % 32);
-
-  flashbackWashes[0].style.backgroundImage = `url("${lead}")`;
-  flashbackWashes[0].style.backgroundPosition = `${leadX}% ${leadY}%`;
-  flashbackWashes[1].style.backgroundImage = `url("${trail}")`;
-  flashbackWashes[1].style.backgroundPosition = `${trailX}% ${trailY}%`;
+  const targetWash = flashbackWashes[state.activeWashIndex];
+  targetWash.style.backgroundImage = `url("${lead}")`;
+  targetWash.style.backgroundPosition = `${leadX}% ${leadY}%`;
 }
 
 function updateFlashbacks(deltaSeconds, progress) {
@@ -179,6 +181,7 @@ function updateFlashbacks(deltaSeconds, progress) {
     state.flashbackStarted = true;
     scene.classList.add("flashback-mode");
     flashbackOverlay.classList.add("active");
+    state.activeWashIndex = 0;
     paintFlashbackPair();
     flashbackWashes[0].classList.add("visible");
   }
@@ -189,12 +192,19 @@ function updateFlashbacks(deltaSeconds, progress) {
   if (state.flashbackTimer >= state.flashbackNextChange) {
     state.flashbackTimer = 0;
     state.flashbackIndex += 1;
+    const previousWash = state.activeWashIndex;
+    state.activeWashIndex = (state.activeWashIndex + 1) % flashbackWashes.length;
     paintFlashbackPair();
-    flashbackWashes.forEach((wash, index) => {
-      const active = index === state.flashbackIndex % flashbackWashes.length;
-      wash.classList.toggle("visible", active);
-      wash.style.opacity = active ? "1" : "0";
-    });
+    flashbackWashes[state.activeWashIndex].classList.add("visible");
+    flashbackWashes[state.activeWashIndex].style.opacity = "1";
+    if (state.washTimeout) {
+      window.clearTimeout(state.washTimeout);
+    }
+    state.washTimeout = window.setTimeout(() => {
+      flashbackWashes[previousWash].classList.remove("visible");
+      flashbackWashes[previousWash].style.opacity = "0";
+      state.washTimeout = 0;
+    }, 180);
     state.flashbackNextChange = lerp(1.3, 2.7, slowPhase) + Math.random() * 0.2;
   }
 }

@@ -410,9 +410,9 @@ button {
   opacity: 0;
   transform: scale(1.08);
   transition:
-    opacity 260ms linear,
-    transform 720ms linear,
-    filter 720ms linear;
+    opacity 520ms linear,
+    transform 900ms linear,
+    filter 900ms linear;
   filter: blur(0) saturate(1);
 }
 
@@ -465,10 +465,14 @@ button {
   backdrop-filter: blur(24px);
   transform: translate(-50%, -50%);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+  opacity: 1;
+  transition: opacity 260ms ease, transform 260ms ease;
 }
 
 .prompt.hidden {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -47%);
 }
 
 .prompt h2 {
