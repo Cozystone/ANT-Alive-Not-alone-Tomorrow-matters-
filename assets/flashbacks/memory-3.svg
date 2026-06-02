@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="seat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#784f43"/>
+      <stop offset="100%" stop-color="#3c3138"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f9bb84"/>
+      <stop offset="100%" stop-color="#8390c6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="#2e2931"/>
+  <rect x="120" y="92" width="1360" height="420" rx="28" fill="url(#glass)"/>
+  <rect x="774" y="92" width="20" height="420" fill="#efddc1" opacity="0.52"/>
+  <rect x="0" y="554" width="1600" height="346" fill="url(#seat)"/>
+  <rect x="0" y="488" width="1600" height="76" fill="#463843"/>
+  <circle cx="1182" cy="200" r="70" fill="#ffdcb0" opacity="0.72"/>
+  <g opacity="0.88">
+    <path d="M396 600 C442 554 500 544 548 564 C526 618 468 650 396 600 Z" fill="#e5b497"/>
+    <path d="M536 576 C582 548 626 552 674 588 C648 642 590 656 536 576 Z" fill="#f2c7ae"/>
+    <path d="M416 592 C466 620 520 620 566 586 C596 564 626 558 666 570" stroke="#f7dac2" stroke-width="18" fill="none" stroke-linecap="round"/>
+  </g>
+  <g fill="#1e1920" opacity="0.85">
+    <rect x="246" y="186" width="92" height="272" rx="40"/>
+    <rect x="1270" y="186" width="92" height="272" rx="40"/>
+  </g>
+</svg>

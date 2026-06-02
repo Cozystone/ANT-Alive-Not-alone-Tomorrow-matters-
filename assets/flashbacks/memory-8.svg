@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="rain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2a774"/>
+      <stop offset="46%" stop-color="#8e7cad"/>
+      <stop offset="100%" stop-color="#2e394f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#rain)"/>
+  <rect y="580" width="1600" height="320" fill="#253141"/>
+  <rect x="144" y="176" width="1312" height="430" rx="34" fill="#314459" opacity="0.92"/>
+  <rect x="208" y="238" width="1184" height="306" rx="24" fill="#f0a86f" opacity="0.7"/>
+  <rect x="720" y="176" width="160" height="430" fill="#233040"/>
+  <g stroke="#ffffff" stroke-opacity="0.24" stroke-width="4">
+    <path d="M280 224 L238 534"/>
+    <path d="M392 214 L342 534"/>
+    <path d="M1022 218 L980 534"/>
+    <path d="M1266 224 L1218 534"/>
+  </g>
+  <g fill="#1b171d" opacity="0.82">
+    <path d="M332 638 C418 556 518 542 622 584 C560 662 466 698 332 638 Z"/>
+    <path d="M976 636 C1060 550 1158 544 1266 596 C1204 670 1100 702 976 636 Z"/>
+  </g>
+  <g fill="#ffd4a1" opacity="0.82">
+    <circle cx="506" cy="686" r="20"/>
+    <circle cx="1118" cy="690" r="20"/>
+  </g>
+</svg>

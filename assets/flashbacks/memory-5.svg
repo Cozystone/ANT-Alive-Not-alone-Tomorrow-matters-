@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0bc80"/>
+      <stop offset="48%" stop-color="#d57a6a"/>
+      <stop offset="100%" stop-color="#44506e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sunset)"/>
+  <circle cx="1180" cy="242" r="92" fill="#ffd8a8" opacity="0.78"/>
+  <rect y="520" width="1600" height="380" fill="#45617b"/>
+  <rect y="664" width="1600" height="236" fill="#d7ba93"/>
+  <g fill="#fff1d7" opacity="0.36">
+    <path d="M0 556 C218 526 450 540 694 572 S1194 628 1600 584" stroke="#fff1d7" stroke-width="8" fill="none"/>
+  </g>
+  <g fill="#1d1820" opacity="0.9">
+    <path d="M486 662 C546 594 614 584 690 628 C658 690 584 712 486 662 Z"/>
+    <path d="M660 650 C730 568 810 558 892 614 C846 692 764 720 660 650 Z"/>
+    <path d="M850 658 C908 596 972 590 1032 632 C996 690 938 710 850 658 Z"/>
+  </g>
+</svg>

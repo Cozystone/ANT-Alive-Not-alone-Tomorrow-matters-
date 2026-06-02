@@ -17,6 +17,14 @@ const skylineFar = document.getElementById("skylineFar");
 const skylineNear = document.getElementById("skylineNear");
 
 const flashbackSources = [
+  "assets/flashbacks/memory-1.svg",
+  "assets/flashbacks/memory-2.svg",
+  "assets/flashbacks/memory-3.svg",
+  "assets/flashbacks/memory-4.svg",
+  "assets/flashbacks/memory-5.svg",
+  "assets/flashbacks/memory-6.svg",
+  "assets/flashbacks/memory-7.svg",
+  "assets/flashbacks/memory-8.svg",
   "assets/flashbacks/photo-1.jpg",
   "assets/flashbacks/photo-2.jpg",
   "assets/flashbacks/photo-3.jpg",
