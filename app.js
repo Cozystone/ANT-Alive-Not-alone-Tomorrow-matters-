@@ -57,13 +57,14 @@ const state = {
   availableFlashbacks: [],
   flashbackIndex: 0,
   flashbackTimer: 0,
-  flashbackNextChange: 0.18,
+  flashbackNextChange: 0.34,
   flashbackStarted: false,
+  promptShown: false,
 };
 
 const motion = {
   walkSpeed: 235,
-  baseGravity: 950,
+  baseGravity: 620,
   lastTime: 0,
   frameId: 0,
 };
@@ -90,10 +91,6 @@ function clamp(value, min, max) {
 
 function lerp(start, end, amount) {
   return start + (end - start) * amount;
-}
-
-function getGroundScreenY() {
-  return state.groundWorldY - state.cameraY;
 }
 
 function getRoofLeftX() {
@@ -138,10 +135,10 @@ function updateWorldMetrics() {
   state.sceneWidth = world.clientWidth;
   state.towerWidth = Math.min(state.sceneWidth * 0.18, 245);
   state.roofWidth = Math.min(state.sceneWidth * 0.24, 320);
-  state.towerLeft = state.sceneWidth * 0.165;
-  state.roofWorldY = Math.max(state.sceneHeight * 1.9, 1500);
+  state.towerLeft = state.sceneWidth * 0.275;
+  state.roofWorldY = Math.max(state.sceneHeight * 2.55, 2050);
   state.groundWorldY = 48;
-  state.towerHeight = state.roofWorldY + 210;
+  state.towerHeight = state.roofWorldY + 250;
   state.baseCameraY = state.roofWorldY - state.sceneHeight * 0.78;
 
   towerWrap.style.left = `${state.towerLeft}px`;
@@ -165,7 +162,8 @@ function resetFlashbacks() {
   });
   state.flashbackStarted = false;
   state.flashbackTimer = 0;
-  state.flashbackNextChange = 0.18;
+  state.flashbackNextChange = 0.34;
+  state.promptShown = false;
 }
 
 function randomizeFlashbackFrames(progress) {
@@ -187,11 +185,11 @@ function randomizeFlashbackFrames(progress) {
 }
 
 function updateFlashbacks(deltaSeconds, progress) {
-  if (progress < 0.36) {
+  if (progress < 0.48) {
     return;
   }
 
-  const slowPhase = clamp((progress - 0.36) / 0.52, 0, 1);
+  const slowPhase = clamp((progress - 0.48) / 0.42, 0, 1);
 
   if (!state.flashbackStarted) {
     state.flashbackStarted = true;
@@ -202,7 +200,7 @@ function updateFlashbacks(deltaSeconds, progress) {
     });
   }
 
-  flashbackOverlay.style.opacity = String(lerp(0.28, 1, slowPhase));
+  flashbackOverlay.style.opacity = String(lerp(0.2, 0.96, slowPhase));
   state.flashbackTimer += deltaSeconds;
 
   if (state.flashbackTimer >= state.flashbackNextChange) {
@@ -211,12 +209,14 @@ function updateFlashbacks(deltaSeconds, progress) {
     randomizeFlashbackFrames(progress);
 
     flashbackFrames.forEach((frame, index) => {
-      const shouldShow = slowPhase > 0.55 ? index === state.flashbackIndex % flashbackFrames.length : index < 2 + (state.flashbackIndex % 2);
+      const shouldShow = slowPhase > 0.58
+        ? index === state.flashbackIndex % flashbackFrames.length
+        : index < 2 + (state.flashbackIndex % 2);
       frame.classList.toggle("visible", shouldShow);
-      frame.style.opacity = shouldShow ? String(lerp(0.7, 0.96, slowPhase)) : "0";
+      frame.style.opacity = shouldShow ? String(lerp(0.64, 0.94, slowPhase)) : "0";
     });
 
-    state.flashbackNextChange = lerp(0.11, 0.44, slowPhase) + Math.random() * 0.05;
+    state.flashbackNextChange = lerp(0.28, 0.86, slowPhase) + Math.random() * 0.08;
   }
 }
 
@@ -261,23 +261,24 @@ function resetPlayer() {
 }
 
 function beginFall() {
-  if (state.mode === "falling" || state.mode === "confirming") {
+  if (state.mode === "falling" || state.mode === "confirming" || state.mode === "chosen-yes") {
     return;
   }
 
   state.mode = "falling";
-  state.fallVelocity = 35;
+  state.fallVelocity = 14;
   player.classList.add("falling");
   player.classList.remove("walking");
   resetFlashbacks();
 }
 
 function showPrompt() {
+  if (state.promptShown) {
+    return;
+  }
+
   state.mode = "confirming";
-  state.playerWorldY = state.groundWorldY;
-  state.cameraY = 0;
-  player.classList.remove("falling");
-  resetFlashbacks();
+  state.promptShown = true;
   setPromptVisible(true);
   renderWorld();
   promptButtons[0].focus();
@@ -302,18 +303,13 @@ function handleChoice(choice) {
     return;
   }
 
-  setPromptVisible(false);
-
   if (choice === "yes") {
-    addCorpse();
-    state.mode = "corpse-landed";
-    renderWorld();
-    window.setTimeout(() => {
-      resetPlayer();
-    }, 360);
+    setPromptVisible(false);
+    state.mode = "chosen-yes";
     return;
   }
 
+  setPromptVisible(false);
   state.mode = "fade-reset";
   whiteout.classList.add("active");
   window.setTimeout(() => {
@@ -359,22 +355,53 @@ function updateWalking(deltaSeconds) {
 
 function updateFalling(deltaSeconds) {
   const progress = getProgress();
-  const slowPhase = clamp((progress - 0.36) / 0.52, 0, 1);
-  const timeScale = lerp(1, 0.48, slowPhase);
-  const gravity = lerp(motion.baseGravity, motion.baseGravity * 0.52, slowPhase);
+  const slowPhase = clamp((progress - 0.48) / 0.42, 0, 1);
+  const isPromptFall = state.mode === "confirming";
+  const isChosenYes = state.mode === "chosen-yes";
+  const timeScale = isPromptFall
+    ? lerp(0.42, 0.26, slowPhase)
+    : isChosenYes
+      ? lerp(0.58, 0.38, slowPhase)
+      : lerp(0.82, 0.54, slowPhase);
+  const gravity = isPromptFall
+    ? lerp(motion.baseGravity * 0.42, motion.baseGravity * 0.24, slowPhase)
+    : isChosenYes
+      ? lerp(motion.baseGravity * 0.65, motion.baseGravity * 0.4, slowPhase)
+      : lerp(motion.baseGravity, motion.baseGravity * 0.62, slowPhase);
   const effectiveDelta = deltaSeconds * timeScale;
 
   state.fallVelocity += gravity * effectiveDelta;
   state.playerWorldY -= state.fallVelocity * effectiveDelta;
-  state.playerX -= lerp(16, 6, slowPhase) * deltaSeconds;
+  state.playerX -= lerp(11, 4, slowPhase) * deltaSeconds;
 
-  const cameraTarget = Math.max(0, state.playerWorldY - state.sceneHeight * lerp(0.54, 0.42, slowPhase));
-  state.cameraY = lerp(state.cameraY, cameraTarget, 0.08 + slowPhase * 0.05);
+  const cameraTarget = Math.max(0, state.playerWorldY - state.sceneHeight * lerp(0.57, 0.46, slowPhase));
+  state.cameraY = lerp(state.cameraY, cameraTarget, isPromptFall ? 0.045 : 0.065 + slowPhase * 0.04);
 
   updateFlashbacks(deltaSeconds, progress);
 
-  if (state.playerWorldY <= state.groundWorldY) {
+  if (!state.promptShown && progress >= 0.8) {
     showPrompt();
+  }
+
+  if (state.playerWorldY <= state.groundWorldY) {
+    state.playerWorldY = state.groundWorldY;
+    state.cameraY = 0;
+    player.classList.remove("falling");
+
+    if (state.mode === "chosen-yes") {
+      addCorpse();
+      state.mode = "corpse-landed";
+      renderWorld();
+      window.setTimeout(() => {
+        resetPlayer();
+      }, 420);
+      return;
+    }
+
+    if (state.mode === "falling") {
+      showPrompt();
+      return;
+    }
   }
 }
 
@@ -388,7 +415,7 @@ function animate(timestamp) {
 
   if (state.mode === "idle" || state.mode === "walking") {
     updateWalking(deltaSeconds);
-  } else if (state.mode === "falling") {
+  } else if (state.mode === "falling" || state.mode === "confirming" || state.mode === "chosen-yes") {
     updateFalling(deltaSeconds);
   }
 

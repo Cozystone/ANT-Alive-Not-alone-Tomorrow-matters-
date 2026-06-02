@@ -381,9 +381,9 @@ button {
   opacity: 0;
   transform: translate3d(0, var(--frame-hidden-shift, 20px), 0) scale(calc(var(--frame-scale, 1) * 0.88)) rotate(var(--frame-rotate, -5deg));
   transition:
-    opacity 520ms ease,
-    transform 820ms ease,
-    filter 820ms ease;
+    opacity 900ms ease,
+    transform 1400ms ease,
+    filter 1400ms ease;
   filter: blur(6px) saturate(0.88);
 }
 
