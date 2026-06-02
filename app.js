@@ -135,7 +135,7 @@ function updateWorldMetrics() {
   state.sceneWidth = world.clientWidth;
   state.towerWidth = Math.min(state.sceneWidth * 0.18, 245);
   state.roofWidth = Math.min(state.sceneWidth * 0.24, 320);
-  state.towerLeft = state.sceneWidth * 0.49;
+  state.towerLeft = state.sceneWidth * 0.57;
   state.roofWorldY = Math.max(state.sceneHeight * 2.55, 2050);
   state.groundWorldY = 48;
   state.towerHeight = state.roofWorldY + 250;
